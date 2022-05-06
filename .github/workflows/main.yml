@@ -34,13 +34,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: azure/login@v1
-      name: Sign in to Azure
+      name: Sign in to Azure      
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{secrets.AZURE_CREDENTIALS}}
     - uses: azure/arm-deploy@v1.0.8
       name: Run preflight validation
       with:
-        deploymentName: ${{ github.run_number }}
+        deploymentName: ${{github.run_number}}
         template: ./azure.deploy.bicep
         parameters: azure.deploy.parameters.json
         deploymentMode: Validate

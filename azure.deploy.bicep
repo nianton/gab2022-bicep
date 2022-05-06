@@ -24,6 +24,7 @@ var rgName = empty(resourceGroupName) ? 'rg-${applicationName}-${environment}' :
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: rgName
   location: location
+  tags: defaultTags
 }
 
 // Naming module to configure the naming conventions for Azure

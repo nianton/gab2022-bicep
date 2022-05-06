@@ -42,6 +42,7 @@ jobs:
       with:
         deploymentName: ${{github.run_number}}
         scope: subscription
+        region: westeurope
         template: ./azure.deploy.bicep
         parameters: azure.deploy.parameters.json
         deploymentMode: Validate

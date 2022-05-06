@@ -63,8 +63,9 @@ jobs:
      - uses: Azure/cli@v1
        name: Run what-if
        with:
-         inlineScript: |
-             az deployment sub what-if \
-               --location ${{ env.AZURE_REGION }} \
-               --template-file azure.deploy.bicep \
-               --parameters azure.deploy.parameters.json
+        azcliversion: 2.35.0
+        inlineScript: |
+          az deployment sub what-if \
+            --location ${{ env.AZURE_REGION }} \
+            --template-file azure.deploy.bicep \
+            --parameters azure.deploy.parameters.json

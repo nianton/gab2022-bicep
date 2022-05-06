@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "applicationName": {
-      "value": "newapp"
+      "value": "gab2022"
     },
     "environment": {
       "value": "dev"
@@ -11,10 +11,16 @@
     "location": {
       "value": "westeurope"
     },
+    "jumphostAdministratorPassword": {
+      "value": "QWopASkl;'1"
+    },
+    "sqlServerAdministratorPassword": {
+      "value": "ASklZXnm,./1"
+    },   
     "tags": {
       "value": {
-        "owner": "myself",
-        "costCenter": "personal wallet"
+        "eventType": "GlobalAzureBootcamp",
+        "eventId": "2022@Greece"
       }
     }
   }

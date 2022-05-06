@@ -41,6 +41,7 @@ jobs:
       name: Run preflight validation
       with:
         deploymentName: ${{github.run_number}}
+        scope: subscription
         template: ./azure.deploy.bicep
         parameters: azure.deploy.parameters.json
         deploymentMode: Validate

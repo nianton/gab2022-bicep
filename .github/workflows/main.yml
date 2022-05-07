@@ -88,3 +88,4 @@ jobs:
           region: ${{ env.AZURE_REGION }}
           template: ./azure.deploy.bicep
           parameters: azure.deploy.parameters.json
+          failOnStdErr: false

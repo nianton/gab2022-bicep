@@ -20,12 +20,11 @@ var resourceNames = {
   sqlDatabase: naming.mssqlDatabase.name
   jumphostVirtualMachine: naming.windowsVirtualMachine.name
 }
-
+var sqlServerAdministratorLogin = 'dbadmin'
 var isProd = contains(resourceGroup().name, 'prod')
 
 var secretNames = {
   dataStorageConnectionString: 'dataStorageConnectionString'
-  redisConnectionString: 'redisConnectionString'
   sqlConnectionString: 'sqlConnectionString'
 }
 
@@ -105,10 +104,6 @@ module frontendWebApp 'modules/webApp.module.bicep' = {
         name: 'SqlDbConnection'
         value: '@Microsoft.KeyVault(VaultName=${resourceNames.keyVault};SecretName=${secretNames.sqlConnectionString})'
       }
-      {
-        name: 'RedisConnection'
-        value: '@Microsoft.KeyVault(VaultName=${resourceNames.keyVault};SecretName=${secretNames.redisConnectionString})'
-      }
     ]
   }  
 }
@@ -130,10 +125,6 @@ module backendWebApp 'modules/webApp.module.bicep' = {
       {
         name: 'SqlDbConnection'
         value: '@Microsoft.KeyVault(VaultName=${resourceNames.keyVault};SecretName=${secretNames.sqlConnectionString})'
-      }
-      {
-        name: 'RedisConnection'
-        value: '@Microsoft.KeyVault(VaultName=${resourceNames.keyVault};SecretName=${secretNames.redisConnectionString})'
       }
     ]
   }
@@ -181,7 +172,7 @@ module sqlServer 'modules/sqlServer.module.bicep' = {
     name: resourceNames.sqlServer
     location: location
     tags: tags
-    administratorLogin: 'dbadmin'
+    administratorLogin: sqlServerAdministratorLogin
     administratorLoginPassword: sqlServerAdministratorPassword
     databaseName: resourceNames.sqlDatabase
   }
@@ -240,11 +231,16 @@ module keyVault 'modules/keyvault.module.bicep' ={
     secrets: [
       {
         name: secretNames.dataStorageConnectionString
-        value: storage.outputs.connectionString
+        service: {
+          type: 'storageAccount'
+          name: storage.outputs.name
+          id: storage.outputs.id
+          apiVersion: storage.outputs.apiVersion
+        }
       }
       {
         name: secretNames.sqlConnectionString
-        value: sqlServer.outputs.connectionString
+        value: 'Data Source=tcp:${sqlServer.outputs.fullyQualifiedDomainName}, 1433;Initial Catalog=${resourceNames.sqlDatabase};User Id=${sqlServerAdministratorLogin}@${resourceNames.sqlServer};Password=${sqlServerAdministratorPassword};'
       }
     ]
   }  

@@ -41,6 +41,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 output id string = storage.id
 output name string = storage.name
-output primaryKey string = listKeys(storage.id, storage.apiVersion).keys[0].value
+output apiVersion string = storage.apiVersion
 output primaryEndpoints object = storage.properties.primaryEndpoints
-output connectionString string = 'DefaultEndpointsProtocol=https;AccountName=${storage.name};AccountKey=${listKeys(storage.id, storage.apiVersion).keys[0].value}'
+// output primaryKey string = listKeys(storage.id, storage.apiVersion).keys[0].value
+// output connectionString string = 'DefaultEndpointsProtocol=https;AccountName=${storage.name};AccountKey=${listKeys(storage.id, storage.apiVersion).keys[0].value}'

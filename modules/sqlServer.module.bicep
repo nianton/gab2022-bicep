@@ -2,7 +2,6 @@ param name string
 param location string = resourceGroup().location
 param tags object = {}
 param databaseName string
-
 param administratorLogin string = 'dbadmin'
 
 @secure()
@@ -50,5 +49,7 @@ resource tde 'Microsoft.Sql/servers/databases/transparentDataEncryption@2021-02-
 }
 
 output id string = sqlServer.id
+output name string = sqlServer.name
+output apiVersion string = sqlServer.apiVersion
 output databaseId string = database.id
-output connectionString string = 'Data Source=tcp:${sqlServer.properties.fullyQualifiedDomainName}, 1433;Initial Catalog=${databaseName};User Id=${administratorLogin}@${name};Password=${administratorLoginPassword};'
+output fullyQualifiedDomainName string = sqlServer.properties.fullyQualifiedDomainName

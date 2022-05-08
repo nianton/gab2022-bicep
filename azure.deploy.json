@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.1.6515",
-      "templateHash": "15323419840782145841"
+      "templateHash": "10447891586558848417"
     }
   },
   "parameters": {
@@ -1142,7 +1142,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.1.6515",
-              "templateHash": "14661951324892493619"
+              "templateHash": "4957817668780335137"
             }
           },
           "parameters": {
@@ -1176,10 +1176,10 @@
               "sqlDatabase": "[parameters('naming').mssqlDatabase.name]",
               "jumphostVirtualMachine": "[parameters('naming').windowsVirtualMachine.name]"
             },
+            "sqlServerAdministratorLogin": "dbadmin",
             "isProd": "[contains(resourceGroup().name, 'prod')]",
             "secretNames": {
               "dataStorageConnectionString": "dataStorageConnectionString",
-              "redisConnectionString": "redisConnectionString",
               "sqlConnectionString": "sqlConnectionString"
             }
           },
@@ -1421,7 +1421,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.1.6515",
-                      "templateHash": "9723819337782798445"
+                      "templateHash": "15256044407391615603"
                     }
                   },
                   "parameters": {
@@ -1487,17 +1487,13 @@
                       "type": "string",
                       "value": "[toLower(replace(parameters('name'), '-', ''))]"
                     },
-                    "primaryKey": {
+                    "apiVersion": {
                       "type": "string",
-                      "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(replace(parameters('name'), '-', ''))), '2019-06-01').keys[0].value]"
+                      "value": "2019-06-01"
                     },
                     "primaryEndpoints": {
                       "type": "object",
                       "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', toLower(replace(parameters('name'), '-', '')))).primaryEndpoints]"
-                    },
-                    "connectionString": {
-                      "type": "string",
-                      "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', toLower(replace(parameters('name'), '-', '')), listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(replace(parameters('name'), '-', ''))), '2019-06-01').keys[0].value)]"
                     }
                   }
                 }
@@ -1540,10 +1536,6 @@
                       {
                         "name": "SqlDbConnection",
                         "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName={1})', variables('resourceNames').keyVault, variables('secretNames').sqlConnectionString)]"
-                      },
-                      {
-                        "name": "RedisConnection",
-                        "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName={1})', variables('resourceNames').keyVault, variables('secretNames').redisConnectionString)]"
                       }
                     ]
                   }
@@ -1851,10 +1843,6 @@
                       {
                         "name": "SqlDbConnection",
                         "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName={1})', variables('resourceNames').keyVault, variables('secretNames').sqlConnectionString)]"
-                      },
-                      {
-                        "name": "RedisConnection",
-                        "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName={1})', variables('resourceNames').keyVault, variables('secretNames').redisConnectionString)]"
                       }
                     ]
                   }
@@ -2563,7 +2551,7 @@
                     "value": "[parameters('tags')]"
                   },
                   "administratorLogin": {
-                    "value": "dbadmin"
+                    "value": "[variables('sqlServerAdministratorLogin')]"
                   },
                   "administratorLoginPassword": {
                     "value": "[parameters('sqlServerAdministratorPassword')]"
@@ -2579,7 +2567,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.1.6515",
-                      "templateHash": "5599337659450087271"
+                      "templateHash": "2557971550928672240"
                     }
                   },
                   "parameters": {
@@ -2672,13 +2660,21 @@
                       "type": "string",
                       "value": "[resourceId('Microsoft.Sql/servers', parameters('name'))]"
                     },
+                    "name": {
+                      "type": "string",
+                      "value": "[parameters('name')]"
+                    },
+                    "apiVersion": {
+                      "type": "string",
+                      "value": "2021-02-01-preview"
+                    },
                     "databaseId": {
                       "type": "string",
                       "value": "[resourceId('Microsoft.Sql/servers/databases', parameters('name'), parameters('databaseName'))]"
                     },
-                    "connectionString": {
+                    "fullyQualifiedDomainName": {
                       "type": "string",
-                      "value": "[format('Data Source=tcp:{0}, 1433;Initial Catalog={1};User Id={2}@{3};Password={4};', reference(resourceId('Microsoft.Sql/servers', parameters('name'))).fullyQualifiedDomainName, parameters('databaseName'), parameters('administratorLogin'), parameters('name'), parameters('administratorLoginPassword'))]"
+                      "value": "[reference(resourceId('Microsoft.Sql/servers', parameters('name'))).fullyQualifiedDomainName]"
                     }
                   }
                 }
@@ -3018,11 +3014,16 @@
                     "value": [
                       {
                         "name": "[variables('secretNames').dataStorageConnectionString]",
-                        "value": "[reference(resourceId('Microsoft.Resources/deployments', 'storage-deployment')).outputs.connectionString.value]"
+                        "service": {
+                          "type": "storageAccount",
+                          "name": "[reference(resourceId('Microsoft.Resources/deployments', 'storage-deployment')).outputs.name.value]",
+                          "id": "[reference(resourceId('Microsoft.Resources/deployments', 'storage-deployment')).outputs.id.value]",
+                          "apiVersion": "[reference(resourceId('Microsoft.Resources/deployments', 'storage-deployment')).outputs.apiVersion.value]"
+                        }
                       },
                       {
                         "name": "[variables('secretNames').sqlConnectionString]",
-                        "value": "[reference(resourceId('Microsoft.Resources/deployments', 'sqlServer-deployment')).outputs.connectionString.value]"
+                        "value": "[format('Data Source=tcp:{0}, 1433;Initial Catalog={1};User Id={2}@{3};Password={4};', reference(resourceId('Microsoft.Resources/deployments', 'sqlServer-deployment')).outputs.fullyQualifiedDomainName.value, variables('resourceNames').sqlDatabase, variables('sqlServerAdministratorLogin'), variables('resourceNames').sqlServer, parameters('sqlServerAdministratorPassword'))]"
                       }
                     ]
                   }
@@ -3034,7 +3035,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.1.6515",
-                      "templateHash": "1566044427833108691"
+                      "templateHash": "11040590614115125072"
                     }
                   },
                   "parameters": {
@@ -3113,7 +3114,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.6.1.6515",
-                              "templateHash": "882012950635731781"
+                              "templateHash": "10455102469857885595"
                             }
                           },
                           "parameters": {
@@ -3133,11 +3134,93 @@
                                 "name": "keyVaultSecrets",
                                 "count": "[length(parameters('secrets'))]"
                               },
-                              "type": "Microsoft.KeyVault/vaults/secrets",
-                              "apiVersion": "2018-02-14",
-                              "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('secrets')[copyIndex()].name)]",
+                              "type": "Microsoft.Resources/deployments",
+                              "apiVersion": "2020-10-01",
+                              "name": "[format('keyVaultSecret-{0}-Deployment', parameters('secrets')[copyIndex()].name)]",
                               "properties": {
-                                "value": "[parameters('secrets')[copyIndex()].value]"
+                                "expressionEvaluationOptions": {
+                                  "scope": "inner"
+                                },
+                                "mode": "Incremental",
+                                "parameters": {
+                                  "keyVaultName": {
+                                    "value": "[parameters('keyVaultName')]"
+                                  },
+                                  "name": {
+                                    "value": "[parameters('secrets')[copyIndex()].name]"
+                                  },
+                                  "value": {
+                                    "value": "[if(contains(parameters('secrets')[copyIndex()], 'value'), parameters('secrets')[copyIndex()].value, '')]"
+                                  },
+                                  "serviceMetadata": {
+                                    "value": "[if(contains(parameters('secrets')[copyIndex()], 'service'), parameters('secrets')[copyIndex()].service, createObject())]"
+                                  }
+                                },
+                                "template": {
+                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                  "contentVersion": "1.0.0.0",
+                                  "metadata": {
+                                    "_generator": {
+                                      "name": "bicep",
+                                      "version": "0.6.1.6515",
+                                      "templateHash": "8765025359739579453"
+                                    }
+                                  },
+                                  "parameters": {
+                                    "keyVaultName": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string",
+                                      "metadata": {
+                                        "description": "Array of name/value pairs"
+                                      }
+                                    },
+                                    "value": {
+                                      "type": "string",
+                                      "defaultValue": ""
+                                    },
+                                    "serviceMetadata": {
+                                      "type": "object"
+                                    }
+                                  },
+                                  "variables": {
+                                    "deploy": "[or(not(empty(parameters('value'))), not(empty(parameters('serviceMetadata'))))]"
+                                  },
+                                  "resources": [
+                                    {
+                                      "condition": "[variables('deploy')]",
+                                      "type": "Microsoft.KeyVault/vaults/secrets",
+                                      "apiVersion": "2018-02-14",
+                                      "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('name'))]",
+                                      "properties": {
+                                        "value": "[if(not(empty(parameters('value'))), createObject('value', parameters('value')), if(equals(parameters('serviceMetadata').type, 'storageAccount'), createObject('value', format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', parameters('serviceMetadata').name, listKeys(parameters('serviceMetadata').id, parameters('serviceMetadata').apiVersion).keys[0].value)), createObject('value', '[[serviceMetadata.type was unknown]]'))).value]"
+                                      }
+                                    }
+                                  ],
+                                  "outputs": {
+                                    "id": {
+                                      "type": "string",
+                                      "value": "[resourceId('Microsoft.KeyVault/vaults/secrets', split(format('{0}/{1}', parameters('keyVaultName'), parameters('name')), '/')[0], split(format('{0}/{1}', parameters('keyVaultName'), parameters('name')), '/')[1])]"
+                                    },
+                                    "name": {
+                                      "type": "string",
+                                      "value": "[parameters('name')]"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "value": "Microsoft.KeyVault/vaults/secrets"
+                                    },
+                                    "props": {
+                                      "type": "object",
+                                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults/secrets', split(format('{0}/{1}', parameters('keyVaultName'), parameters('name')), '/')[0], split(format('{0}/{1}', parameters('keyVaultName'), parameters('name')), '/')[1]), '2018-02-14')]"
+                                    },
+                                    "reference": {
+                                      "type": "string",
+                                      "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName={1})', parameters('keyVaultName'), parameters('name'))]"
+                                    }
+                                  }
+                                }
                               }
                             }
                           ],
@@ -3146,13 +3229,7 @@
                               "type": "array",
                               "copy": {
                                 "count": "[length(parameters('secrets'))]",
-                                "input": {
-                                  "id": "[resourceId('Microsoft.KeyVault/vaults/secrets', split(format('{0}/{1}', parameters('keyVaultName'), parameters('secrets')[copyIndex()].name), '/')[0], split(format('{0}/{1}', parameters('keyVaultName'), parameters('secrets')[copyIndex()].name), '/')[1])]",
-                                  "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('secrets')[copyIndex()].name)]",
-                                  "type": "Microsoft.KeyVault/vaults/secrets",
-                                  "props": "[reference(resourceId('Microsoft.KeyVault/vaults/secrets', split(format('{0}/{1}', parameters('keyVaultName'), parameters('secrets')[copyIndex()].name), '/')[0], split(format('{0}/{1}', parameters('keyVaultName'), parameters('secrets')[copyIndex()].name), '/')[1]))]",
-                                  "reference": "[format('@Microsoft.KeyVault(VaultName={0};SecretName:{1}', parameters('keyVaultName'), format('{0}/{1}', parameters('keyVaultName'), parameters('secrets')[copyIndex()].name))]"
-                                }
+                                "input": "[reference(resourceId('Microsoft.Resources/deployments', format('keyVaultSecret-{0}-Deployment', parameters('secrets')[copyIndex()].name))).outputs]"
                               }
                             }
                           }
@@ -3225,7 +3302,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.1.6515",
-                      "templateHash": "9200383260426799718"
+                      "templateHash": "6838762368729464223"
                     }
                   },
                   "parameters": {
@@ -3467,7 +3544,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.6.1.6515",
-                              "templateHash": "9723819337782798445"
+                              "templateHash": "15256044407391615603"
                             }
                           },
                           "parameters": {
@@ -3533,17 +3610,13 @@
                               "type": "string",
                               "value": "[toLower(replace(parameters('name'), '-', ''))]"
                             },
-                            "primaryKey": {
+                            "apiVersion": {
                               "type": "string",
-                              "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(replace(parameters('name'), '-', ''))), '2019-06-01').keys[0].value]"
+                              "value": "2019-06-01"
                             },
                             "primaryEndpoints": {
                               "type": "object",
                               "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', toLower(replace(parameters('name'), '-', '')))).primaryEndpoints]"
-                            },
-                            "connectionString": {
-                              "type": "string",
-                              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', toLower(replace(parameters('name'), '-', '')), listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(replace(parameters('name'), '-', ''))), '2019-06-01').keys[0].value)]"
                             }
                           }
                         }

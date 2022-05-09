@@ -10,8 +10,18 @@ param administratorLoginPassword string
 @description('Whether to enable Transparent Data Encryption -defaults to \'true\'')
 param enableTransparentDataEncryption bool = true
 
-param databaseEdition string = 'Standard'
-param databaseServiceObjective string = 'S1'
+@allowed([
+  'S0'
+  'S1'
+  'S2'
+  'S3'
+  'S4'
+  'S6'
+  'S7'
+  'S9'
+  'S12'
+])
+param databaseSkuName string = 'S1'
 param databaseCollation string = 'SQL_Latin1_General_CP1_CI_AS'
 
 resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
@@ -32,8 +42,7 @@ resource database 'Microsoft.Sql/servers/databases@2021-02-01-preview' = {
   location: location
   tags: tags
   sku: {
-    name: databaseServiceObjective
-    tier: databaseEdition
+    name: databaseSkuName
   }
   properties: {
     collation: databaseCollation

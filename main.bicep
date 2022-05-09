@@ -175,6 +175,7 @@ module sqlServer 'modules/sqlServer.module.bicep' = {
     administratorLogin: sqlServerAdministratorLogin
     administratorLoginPassword: sqlServerAdministratorPassword
     databaseName: resourceNames.sqlDatabase
+    databaseSkuName: 'S1'
   }
 }
 
@@ -231,6 +232,7 @@ module keyVault 'modules/keyvault.module.bicep' ={
     secrets: [
       {
         name: secretNames.dataStorageConnectionString
+        //value: '${listKeys(storage.outputs.id, storage.outputs.apiVersion).keys[0].value}'
         service: {
           type: 'storageAccount'
           name: storage.outputs.name

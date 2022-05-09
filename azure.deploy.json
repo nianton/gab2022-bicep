@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.1.6515",
-      "templateHash": "10447891586558848417"
+      "templateHash": "5393660863302823589"
     }
   },
   "parameters": {
@@ -1142,7 +1142,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.1.6515",
-              "templateHash": "4957817668780335137"
+              "templateHash": "1462281523341037769"
             }
           },
           "parameters": {
@@ -2558,6 +2558,9 @@
                   },
                   "databaseName": {
                     "value": "[variables('resourceNames').sqlDatabase]"
+                  },
+                  "databaseSkuName": {
+                    "value": "S1"
                   }
                 },
                 "template": {
@@ -2567,7 +2570,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.1.6515",
-                      "templateHash": "2557971550928672240"
+                      "templateHash": "5590956656345134069"
                     }
                   },
                   "parameters": {
@@ -2599,13 +2602,20 @@
                         "description": "Whether to enable Transparent Data Encryption -defaults to 'true'"
                       }
                     },
-                    "databaseEdition": {
+                    "databaseSkuName": {
                       "type": "string",
-                      "defaultValue": "Standard"
-                    },
-                    "databaseServiceObjective": {
-                      "type": "string",
-                      "defaultValue": "S1"
+                      "defaultValue": "S1",
+                      "allowedValues": [
+                        "S0",
+                        "S1",
+                        "S2",
+                        "S3",
+                        "S4",
+                        "S6",
+                        "S7",
+                        "S9",
+                        "S12"
+                      ]
                     },
                     "databaseCollation": {
                       "type": "string",
@@ -2633,8 +2643,7 @@
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
                       "sku": {
-                        "name": "[parameters('databaseServiceObjective')]",
-                        "tier": "[parameters('databaseEdition')]"
+                        "name": "[parameters('databaseSkuName')]"
                       },
                       "properties": {
                         "collation": "[parameters('databaseCollation')]"
@@ -3035,7 +3044,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.1.6515",
-                      "templateHash": "11040590614115125072"
+                      "templateHash": "7552321729698233268"
                     }
                   },
                   "parameters": {
@@ -3114,7 +3123,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.6.1.6515",
-                              "templateHash": "10455102469857885595"
+                              "templateHash": "8351208393757657099"
                             }
                           },
                           "parameters": {
@@ -3163,7 +3172,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.6.1.6515",
-                                      "templateHash": "8765025359739579453"
+                                      "templateHash": "16615816094636588669"
                                     }
                                   },
                                   "parameters": {
@@ -3194,7 +3203,7 @@
                                       "apiVersion": "2018-02-14",
                                       "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('name'))]",
                                       "properties": {
-                                        "value": "[if(not(empty(parameters('value'))), createObject('value', parameters('value')), if(equals(parameters('serviceMetadata').type, 'storageAccount'), createObject('value', format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', parameters('serviceMetadata').name, listKeys(parameters('serviceMetadata').id, parameters('serviceMetadata').apiVersion).keys[0].value)), createObject('value', '[[serviceMetadata.type was unknown]]'))).value]"
+                                        "value": "[if(not(empty(parameters('value'))), createObject('value', parameters('value')), if(equals(parameters('serviceMetadata').type, 'storageAccount'), createObject('value', format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', parameters('serviceMetadata').name, listKeys(parameters('serviceMetadata').id, parameters('serviceMetadata').apiVersion).keys[0].value)), if(equals(parameters('serviceMetadata').type, 'redisCache'), createObject('value', format('{0}.redis.cache.windows.net,abortConnect=false,ssl=true,password={1}', parameters('serviceMetadata').name, listKeys(parameters('serviceMetadata').id, parameters('serviceMetadata').apiVersion).primaryKey)), if(equals(parameters('serviceMetadata').type, 'serviceBus'), createObject('value', listKeys(resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', parameters('serviceMetadata').name, parameters('serviceMetadata').sasKeyName), parameters('serviceMetadata').apiVersion).primaryConnectionString), createObject('value', format('[[serviceMetadata.type \"{0}\" was unknown]]', parameters('serviceMetadata').type)))))).value]"
                                       }
                                     }
                                   ],

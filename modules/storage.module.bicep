@@ -43,5 +43,3 @@ output id string = storage.id
 output name string = storage.name
 output apiVersion string = storage.apiVersion
 output primaryEndpoints object = storage.properties.primaryEndpoints
-// output primaryKey string = listKeys(storage.id, storage.apiVersion).keys[0].value
-// output connectionString string = 'DefaultEndpointsProtocol=https;AccountName=${storage.name};AccountKey=${listKeys(storage.id, storage.apiVersion).keys[0].value}'
